@@ -61,21 +61,23 @@ Node *read(const char *input) {
     }
     free(cpy);
     */
-    const char *ptr = input;
+    const char *ptr = input; // Point to the first character of input
     while (*ptr != '\0') {
         while (*ptr == ' ' || *ptr == '\t' || *ptr == '\n') { // Move while the current character is a space, tab, or newline
             ptr++;
         }
-        if (*ptr == '\0') {
+        if (*ptr == '\0') { // We've reached the end of the string
             break;
         }
-        char token[512];
-        size_t i = 0;
-        if (*ptr == '(' || *ptr == ')') {
+        char token[512]; // Create the maximum length a token can have
+        size_t i = 0; // Keep track of the index we're at within the input
+        if (*ptr == '(' || *ptr == ')') { // If we reach a parenth, that represents a whole token
             token[i++] = *ptr++; // We use postfix so that it increments after assigning to the current index
         } else {
           while (*ptr != ' ' && *ptr != '\t' && *ptr != '\n' && *ptr != '(' && *ptr != ')' && *ptr != '\0') {
-              token[i++] = *ptr++; // Continue to loop through the next token until one of these is encountered
+            token[i++] = *ptr++; // Continue to loop through the next token
+                                 // until one of these is encountered.
+                                 // If we encounter something like another operator, it'll reach a space and exit the loop and create a new string, because `i` is reset to 0 after each iteration.
           }
         }
         token[i] = '\0';
@@ -97,9 +99,8 @@ Node *eval(Node *ast) {
 
 char *print(Node *ast) {
     if (!ast) {
-        return _strdup("");
+        return _strdup(""); // If the AST is empty
     }
-
     size_t buff_size = 1024;
     char *output = (char *)malloc(buff_size);
     if (!output) {
@@ -108,9 +109,9 @@ char *print(Node *ast) {
         exit(1);
     }
     output[0] = '\0';
-    Node *current_node = ast;
+    Node *current_node = ast; // Start at the first node pointed to by `ast`
     while (current_node) {
-      if (strlen(output) + strlen(current_node->value) + 2 > buff_size) {
+        if (strlen(output) + strlen(current_node->value) + 2 > buff_size) { // Check if there is enough room for a delimiter and null terminator
           buff_size *= 2;
           output = (char *)realloc(output, buff_size);
           if (!output) {
@@ -120,8 +121,8 @@ char *print(Node *ast) {
           }
       }
       strcat_s(output, buff_size, current_node->value);
-      if (current_node->next) {
-          strcat_s(output, buff_size, "\n");
+      if (current_node->next) { // If there is another lexeme after the current one
+          strcat_s(output, buff_size, "\n"); // Append a newline to the string stored into `output`
       }
       current_node = current_node->next;
     }
@@ -131,7 +132,7 @@ char *print(Node *ast) {
 // read evaluate print
 char *rep(const char *input) {
     Node *ast = read(input);
-    Node* result = eval(ast);
+    Node *result = eval(ast);
     char *output = print(result);
     free_ast(ast);
     return output;
