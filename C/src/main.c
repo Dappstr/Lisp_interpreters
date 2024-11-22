@@ -75,8 +75,7 @@ Node *read(const char *input) {
             token[i++] = *ptr++; // We use postfix so that it increments after assigning to the current index
         } else {
           while (*ptr != ' ' && *ptr != '\t' && *ptr != '\n' && *ptr != '(' && *ptr != ')' && *ptr != '\0') {
-            token[i++] = *ptr++; // Continue to loop through the next token
-                                 // until one of these is encountered.
+            token[i++] = *ptr++; // Continue to loop through the next token until one of these is encountered.
                                  // If we encounter something like another operator, it'll reach a space and exit the loop and create a new string, because `i` is reset to 0 after each iteration.
           }
         }
