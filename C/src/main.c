@@ -8,6 +8,7 @@ static char buffer[2048];
 
 typedef struct Node {
     struct Node *next;
+    struct Node *children;
     char *value;
 } Node;
 
@@ -19,7 +20,8 @@ Node *create_node(const char *value) {
                __FUNCTION__);
         exit(1);
     }
-    node->value = _strdup(value); // Must be passed to `free` to avoid memory leak
+    node->value = value ? _strdup(value) : NULL; // Duplicate value if provided
+    node->children = NULL;
     node->next = NULL;
     return node;
 }
@@ -34,62 +36,98 @@ void free_ast(Node *head) {
     }
 }
 
+Node *read_expr(const char **input) {
+    // Skip whitespace
+    while (**input == ' ' || **input == '\t' || **input == '\n') {
+        (*input)++;
+    }
+    // Check if we reached the end of the source
+    if (**input == '\0') {
+        return NULL;
+    } else {
+        // Begin writing an expression
+        if (**input == '(') { // Create a new node to hold the operator and its "atoms" (operands)
+            (*input)++; // Skip opening parenth
+
+            Node *list = create_node(NULL);
+            Node *tail = NULL;
+            Node *operator= read_expr(input); // Get the operator, which is given becaause `input` was incremented previously
+
+            if (!operator || operator->value == NULL) {
+                printf("Error: Invalid operator in list.\n");
+                exit(1);
+            }
+            
+            list->value = operator->value;
+            free(operator);
+            
+            while (**input != ')' && **input != '\0') {
+              Node *child = read_expr(input); // Recursive call. If it
+                                              // encounters another
+                                              // opening parenth, this block
+                                              // will be executed. Otherwise it will try to parse a token like a number or symbol name
+              if (!child) {
+                printf("Error: Unexpected null child node.\n");
+                exit(1);
+              }
+              if (!list->children) {
+                  list->children = child;
+              } else {
+                  tail->next = child;
+              }
+                tail = child; //
+            }
+            if (**input == ')') {
+                (*input)++; // Skip closing parenth
+            } else {
+                printf("Error: Unmatched opening parenthesis.\n");
+                exit(1);
+            }
+            return list; // We've reached the end of an expression
+        } else if (**input == ')') {
+            printf("Error: Unmatched closing parenthesis.\n");
+            exit(1);
+        } else {
+            char token[512];
+            size_t i = 0;
+            while (**input != ' ' && **input != '\t' && **input != '\n' &&
+                   **input != '(' && **input != ')' && **input != '\0') {
+                token[i++] = *(*input)++;
+            }
+            token[i] = '\0';
+            return create_node(token);
+        }
+    }
+}
+void print_ast(Node *node, int indent) {
+    if (!node) {
+        return;
+    }
+
+    // Print the current node's value with indentation
+    for (size_t i = 0; i < indent; ++i) {
+        printf(" ");
+    }
+    if (node->value) {
+        printf("%s\n", node->value);
+    } else {
+        printf("()\n");
+    }
+
+    // Recursively print children with increased indentation
+    if (node->children) {
+        print_ast(node->children, indent + 2);
+    }
+
+    // Recursively print siblings at the same indentation level
+    if (node->next) {
+        print_ast(node->next, indent);
+    }
+}
+
 Node *read(const char *input) {
-    Node *head = NULL, *tail = NULL;
-    //const char *delims = " \t\n";
-    /*
-      char *cpy = _strdup(input);
-    if (!cpy) {
-      printf("Failed to create duplicate of string in %s\n",
-             __FUNCTION__);
-      exit(1);
-    }
-    */
-    /*
-    char *context = NULL;
-    char *token = strtok_s(cpy, delims, &context);
-    while (token) {
-        Node *node = create_node(token);
-        if (!head) {
-          head = node;
-          tail = node;
-        } else {
-          tail->next = node;
-          tail = node;
-        }
-        token = strtok_s(NULL, delims, &context);
-    }
-    free(cpy);
-    */
-    const char *ptr = input; // Point to the first character of input
-    while (*ptr != '\0') {
-        while (*ptr == ' ' || *ptr == '\t' || *ptr == '\n') { // Move while the current character is a space, tab, or newline
-            ptr++;
-        }
-        if (*ptr == '\0') { // We've reached the end of the string
-            break;
-        }
-        char token[512]; // Create the maximum length a token can have
-        size_t i = 0; // Keep track of the index we're at within the input
-        if (*ptr == '(' || *ptr == ')') { // If we reach a parenth, that represents a whole token
-            token[i++] = *ptr++; // We use postfix so that it increments after assigning to the current index
-        } else {
-          while (*ptr != ' ' && *ptr != '\t' && *ptr != '\n' && *ptr != '(' && *ptr != ')' && *ptr != '\0') {
-            token[i++] = *ptr++; // Continue to loop through the next token until one of these is encountered.
-                                 // If we encounter something like another operator, it'll reach a space and exit the loop and create a new string, because `i` is reset to 0 after each iteration.
-          }
-        }
-        token[i] = '\0';
-        Node *node = create_node(token);
-        if (!head) { // Create the first node
-            head = node;
-            tail = node;
-        } else {
-            tail->next = node;
-            tail = node;
-        }
-    }
-    return head;
+    const char *ptr = input;
+    return read_expr(&ptr);
 }
 
 Node *eval(Node *ast) {
@@ -165,8 +203,12 @@ int main() {
             break;
         }
         assert(input && "Something went wrong when returning pointer to memory!\n");
-        char *output = rep(input);
-        printf("%s\n", output);
+        Node *ast = read(input);
+        printf("Parsed AST:\n");
+        print_ast(ast, 0);
+        Node *result = eval(ast);
+        char *output = print(result);
+        free_ast(ast);
         free(input);
         free(output);
     }

@@ -53,8 +53,7 @@ std::string get_user_input(const char *prompt) noexcept {
     std::string input{};
     std::cout << prompt;
     std::getline(std::cin, input);
-    return input;
-    
+    return input;   
 }
 
 int main() {
@@ -72,6 +71,5 @@ int main() {
             }
         }
     }
-
     return EXIT_SUCCESS;
 }
