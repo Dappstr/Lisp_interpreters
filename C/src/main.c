@@ -20,7 +20,7 @@ Node *create_node(const char *value) {
                __FUNCTION__);
         exit(1);
     }
-    node->value = value ? _strdup(value) : NULL; // Duplicate value if provided
+    node->value = value ? strdup(value) : NULL; // Duplicate value if provided
     node->children = NULL;
     node->next = NULL;
     return node;
@@ -83,8 +83,8 @@ Node *read_expr(const char **input) {
                 printf("Error: Unmatched opening parenthesis.\n");
                 exit(1);
             }
-            return list; // We've reached the end of an expression
-        } else if (**input == ')') {
+            return list;
+        } else if (**input == ')') { // Will be triggered only if we don't start in an expression with the opening parenth
             printf("Error: Unmatched closing parenthesis.\n");
             exit(1);
         } else {
@@ -99,6 +99,7 @@ Node *read_expr(const char **input) {
         }
     }
 }
+
 void print_ast(Node *node, int indent) {
     if (!node) {
         return;
@@ -136,7 +137,7 @@ Node *eval(Node *ast) {
 
 char *print(Node *ast) {
     if (!ast) {
-        return _strdup(""); // If the AST is empty
+        return strdup(""); // If the AST is empty
     }
     size_t buff_size = 1024;
     char *output = (char *)malloc(buff_size);
@@ -157,9 +158,9 @@ char *print(Node *ast) {
               exit(1);
           }
       }
-      strcat_s(output, buff_size, current_node->value);
+      strcat(output, current_node->value);
       if (current_node->next) { // If there is another lexeme after the current one
-          strcat_s(output, buff_size, "\n"); // Append a newline to the string stored into `output`
+          strcat(output, "\n"); // Append a newline to the string stored into `output`
       }
       current_node = current_node->next;
     }
@@ -191,7 +192,7 @@ char *get_user_input(const char *prompt) {
                __FUNCTION__);
         return NULL;
     }
-    strcpy_s(cpy, len + 1, buffer);
+    strcpy(cpy, buffer);
     return cpy;
 }
 
