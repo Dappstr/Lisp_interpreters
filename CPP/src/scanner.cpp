@@ -42,7 +42,7 @@ void Scanner::scan_token() {
         add_null_token(PLUS);
         break;
     case ';': // COMMENT
-        while (peek() != '\n') {
+        while (peek() != '\n' && peek() != '\0') {
             advance();
         }
         add_null_token(SEMICOLON);
