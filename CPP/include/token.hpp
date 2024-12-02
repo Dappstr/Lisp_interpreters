@@ -68,7 +68,11 @@ public:
   Token(const Token_Type type, const lit& literal, const std::string &lexeme)
       : m_type(type), m_literal(literal), m_lexeme(lexeme) {}
 
-
+    
+    Token_Type type() const { return m_type; }
+    const lit &literal() const { return m_literal; }
+    const std::string& lexeme() const { return m_lexeme; }
+    
     friend std::ostream &operator<<(std::ostream &out, const Token &t) {
         out << "Token { type: " << t.m_type << ", lexeme: " << t.m_lexeme
             << ", literal: ";

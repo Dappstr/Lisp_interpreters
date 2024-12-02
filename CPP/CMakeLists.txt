@@ -13,8 +13,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Define the executable target
 add_executable(mal
-    src/main.cpp
-    src/scanner.cpp
+    	src/main.cpp
+    	src/scanner.cpp
+	src/parser.cpp
+	src/ast.cpp
 )
 
 # Add the include directory for the 'mal' target
