@@ -29,9 +29,7 @@ Below are the methods, return value, and purpose:
 
 
 * Parsing
-#+TODO: Add notes for parsing and creating an AST
 
-** AST
 We forward declare 2 types: Atom_Node and List_Node. The atom node type is responsible for holding the basic unit. List_Node will hold a list like structure such as an expression.
 
 Optionally we make a type alias to a variant which can hold an Atom_Node, and a shared pointer to List_Node
@@ -40,6 +38,25 @@ For the Atom_Node class/struct, we declare a type enumerator which is used to di
 We also have an optional string to represent an identifier.
 
 For the Atom_Node constructors, we declare one which takes in a double, which initializes the type enumerator to a literal, and the value (variant) to the double arg.
+For the second, we have the constructor take in a string, and an optional boolean argument `is_identifier` which is equal to false. The member initializer list sets the Type enumerator to true if `is_identifier` is true, otherwise sets it to false. We also initialize the "value" variant.
+We also have a condition for if is_identifier is true, set the identifier optional member to the argued string.
 
+We also define two utility methods, one for returning whether the type is a literal, and the other for is an identifier.
 
+Next, we create three methods, 2 for returning the value from the variant member, the third for returning a pointer to the identifier member (since it's an optional)
 
+For the actual parser class, we take in a vector of Tokens and a current index member for keeping track of where we are.
+
+| Method name | Parameters         | Return value          | Purpose                                                                                                                                                                                                                                                                                                                                                             |
+|-------------+--------------------+-----------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| parse       | N/A                | std::vector<AST_Node> | Create the initial vector for nodes, while !is_at_end continue to emplace_back expressions, then return the nodes vector                                                                                                                                                                                                                                            |
+| expression  | N/A                | AST_Node              | Check if match method matches a left parenthesis, if so, return list() (an expression), otherwise return an atom                                                                                                                                                                                                                                                    |
+| atom        | N/A                | AST_Node              | Checks if match() is a number, a string, or an identifier along with the math symbols. If it's a number, get the literal, check if it has a value, and then return an Atom_Node constructed with the value of the variant literal. If match is an identifier or math symbol, return an Atom_Node of the previous().lexeme() and "true" for the AST_Node constructor |
+| list        | N/A                | shared_ptr            | Creates a vector of AST nodes, and while is_at_end() is false, and peek()'s type != a right parenthesis, emplace back the expression() method                                                                                                                                                                                                                       |
+| advance     | N/A                | Token&                | Checks if is_at_end() is false, if it is, increment the current member and return the previous                                                                                                                                                                                                                                                                      |
+| peek        | N/A                | Token&                | Returns the current token at the current index                                                                                                                                                                                                                                                                                                                      |
+| previous    | N/A                | Token&                | Returns the token previous (current - 1) from the current one                                                                                                                                                                                                                                                                                                       |
+| match       | Token_Type         | bool                  | Check if !is_at_end() and peek type is the argued type, if it is, advance and return true, else return false                                                                                                                                                                                                                                                        |
+| is_at_end   | N/A                | bool                  | Return whether the current (through peek()) type is an EndofFile type                                                                                                                                                                                                                                                                                               |
+| consume     | Token_Type, string | Token&                | If the token does not match, it throws a runtime error with a custom error message, making it easier to identify parsing issues.                                                                                                                                                                                                                                    |
+|             |                    |                       |                                                                                                                                                                                                                                                                                                                                                                     |
