@@ -1,6 +1,6 @@
 #+TITLE: C++ Lisp Interpreter Notes
 
-* Lexing *
+* Lexing
 
 Create a token class which will contain an optional literal value, a token type, and methods to return the type, literal, and lexeme values.
 Its constructor will take in a type, literal, and lexeme.
@@ -28,3 +28,5 @@ Below are the methods, return value, and purpose:
 | identifier     | N/A                       | void               | While peek() is alphanumeric, continue to advance the current iterator. Get a substring of text from start to current. Check if the given identifier is a keyword, if it is, call add_null_token and supply the value, otherwise call add_null_token and call add_null_token and supply the "type" argument IDENTIFIER |
 
 
+* Parsing
+#+TODO: Add notes for parsing and creating an AST
