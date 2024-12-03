@@ -45,7 +45,21 @@ We also define two utility methods, one for returning whether the type is a lite
 
 Next, we create three methods, 2 for returning the value from the variant member, the third for returning a pointer to the identifier member (since it's an optional)
 
+For the List_Node type, it has a vector of AST_Node member, and two constructors, one for lvalues, one for rvalue-references. Both initialize the elements member.
+
+We also have 4 global print functions:
+
+| Function name | Parameters     | Return value | Purpose                                                                                                                                                                                                                                               |
+|---------------+----------------+--------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| print_ast     | AST_Node, int  | void         | Check if the argued node holds an atom node (use std::holds_alternative), if so call print_atom with the value and its own argued indent amount, otherwise check if the node holds a List_Node, and if so call print_list with the dereferenced value |
+| print_indent  | int            | void         | Print the argued amount of spaces                                                                                                                                                                                                                     |
+| print_atom    | Atom_Node, int | void         | Print indent, and then check if the atom has a value (use std::holds_alternative) and if so print it                                                                                                                                                  |
+| print_list    | List_Node, int | void         | Print indent, go through the list's elements, call print_ast for each element and with an indent argument, then lastly call print_indent with the indent argument argued in its own parameters                                                        |
+
+
+
 For the actual parser class, we take in a vector of Tokens and a current index member for keeping track of where we are.
+Below are the methods defined in the Parser class:
 
 | Method name | Parameters         | Return value          | Purpose                                                                                                                                                                                                                                                                                                                                                             |
 |-------------+--------------------+-----------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
