@@ -25,7 +25,7 @@ struct Atom_Node {
     
     Atom_Node(const double d) : type(Type::Literal), value(d) {} // Constructing a basic number literal
     Atom_Node(const std::string &str, bool is_identifier = false)
-        : type(is_identifier ? Type::Identifier : Type::Literal), value(str) {
+        : type(is_identifier ? Type::Identifier : Type::Literal), value(str) { // Essentially, check if the constructor argument is supplied, if it is then it's an identifier
         if (is_identifier) {
             identifier = str;
         }
@@ -40,7 +40,7 @@ struct Atom_Node {
             !identifier.has_value()) {
             throw std::runtime_error("Atom_Node does not hold an identifier!");
         }
-        return *identifier;
+        return *identifier; // In order to get the value of an optional, you need to dereference it
     }
     double as_number() const {
         if (type != Type::Literal ||

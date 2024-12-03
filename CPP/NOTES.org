@@ -1,0 +1,30 @@
+#+TITLE: C++ Lisp Interpreter Notes
+
+* Lexing *
+
+Create a token class which will contain an optional literal value, a token type, and methods to return the type, literal, and lexeme values.
+Its constructor will take in a type, literal, and lexeme.
+
+Optionally, overload the insertion operator to print the details of the token.
+
+Create a class which will hold a string source, and have a current as well as starting position within it.
+It will also have a vector of tokens member, along with a hash table (std::unordered_map) for the keywords.
+
+Below are the methods, return value, and purpose:
+
+| Method name    | Parameters                | Return value       | Purpose                                                                                                                                                                                                                                                                                                                |
+|----------------+---------------------------+--------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| scan_tokens    | N/A                       | std::vector<Token> | Call the scan_token method while is_at_end is false, as well as set the starting member to the current member                                                                                                                                                                                                          |
+| scan_token     | N/A                       | void               | Get the current character and create a comparison/jump table depending on the character which will add a token to the current list for single character tokens, skip whitespace, and call the respective methods for number literals and identifiers                                                                   |
+| is_at_end      | N/A                       | bool               | Return whether the current member is greater than or equal to the source size                                                                                                                                                                                                                                          |
+| advance        | N/A                       | char               | Return the character in the source at the current position and increment the current member postfix                                                                                                                                                                                                                    |
+| add_null_token | Token_Type                | void               | Call the add_token method supplying a type and a nullopt argument (since it has no literal value)                                                                                                                                                                                                                      |
+| add_token      | Token_Type, literal value | void               | Get the substring starting from the start iterator and to the current iterator, and insert into the tokens member the given values                                                                                                                                                                                     |
+| match          | char                      | bool               | Check if we are at the end of the string, if not check whether the current character is the same as the argued character, if it is, advance the current iterator, and return true, otherwise return false and do not increment the iterator                                                                            |
+| peek           | N/A                       | char               | Check if we're at the end, if so, return the null terminator, otherwise return the current character in the source                                                                                                                                                                                                     |
+| peek_next      | N/A                       | char               | If the current iterator + 1 is less than or greater than the source size, return the null terminator, otherwise return the character in the source at the current index + 1                                                                                                                                            |
+| str            | N/A                       | void               | Use peek() to check while the current character is not equal to a quotation and while it's not at the end. If it is at end, print an error and return, otherwise advance, get the substring, and add the token                                                                                                         |
+| number         | N/A                       | void               | Use peek() and isdigit to advance the current index, if you encounter a period, and the character after it is a digit, advance, and continue checking if there're numbers after. Once finished, make a substring from the start to the end, and convert it into a double/number, then add that token to the vector     |
+| identifier     | N/A                       | void               | While peek() is alphanumeric, continue to advance the current iterator. Get a substring of text from start to current. Check if the given identifier is a keyword, if it is, call add_null_token and supply the value, otherwise call add_null_token and call add_null_token and supply the "type" argument IDENTIFIER |
+
+

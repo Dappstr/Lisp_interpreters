@@ -82,7 +82,7 @@ bool Parser::is_at_end() const {
     return peek().type() == EndOfFile;
 }
 
-const Token &Parser::consume(const Token_Type type, const std::string &error_message) {
+const Token &Parser::consume(const Token_Type type, const std::string &error_message) { // Will be used later for verifying token validation and advancing
     if (match(type)) {
         return previous();
     }

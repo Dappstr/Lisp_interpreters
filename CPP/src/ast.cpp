@@ -1,7 +1,6 @@
 #include "../include/ast.hpp"
 #include <iostream>
 #include <memory>
-#include <optional>
 #include <string>
 #include <variant>
 
@@ -9,7 +8,7 @@ void print_ast(const AST_Node &node, const int indent) {
     if (std::holds_alternative<Atom_Node>(node)) {
         print_atom(std::get<Atom_Node>(node), indent);
     } else if (std::holds_alternative<std::shared_ptr<List_Node>>(node)) {
-        print_list(*std::get<std::shared_ptr<List_Node>>(node), indent);
+        print_list(*std::get<std::shared_ptr<List_Node>>(node), indent); // We dereference because print_list expects a reference, not a (shared) pointer.
     }
 }
 
