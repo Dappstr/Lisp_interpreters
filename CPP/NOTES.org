@@ -30,3 +30,16 @@ Below are the methods, return value, and purpose:
 
 * Parsing
 #+TODO: Add notes for parsing and creating an AST
+
+*** AST
+We forward declare 2 types: Atom_Node and List_Node. The atom node type is responsible for holding the basic unit. List_Node will hold a list like structure such as an expression.
+
+Optionally we make a type alias to a variant which can hold an Atom_Node, and a shared pointer to List_Node
+
+For the Atom_Node class/struct, we declare a type enumerator which is used to distinguish whether the atom is a literal or identifier. We also have the atom store a variant for a string or double.
+We also have an optional string to represent an identifier.
+
+For the Atom_Node constructors, we declare one which takes in a double, which initializes the type enumerator to a literal, and the value (variant) to the double arg.
+
+
+
