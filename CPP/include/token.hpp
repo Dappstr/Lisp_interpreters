@@ -83,7 +83,7 @@ public:
         } else if (auto f = std::get_if<double>(&t.m_literal.value())) {
             out << *f;
         }
-        out << "}\n";
+        out << " }\n";
         return out;
     }
 };
