@@ -32,7 +32,8 @@ Below are the methods, return value, and purpose:
 
 We forward declare 2 types: Atom_Node and List_Node. The atom node type is responsible for holding the basic unit. List_Node will hold a list like structure such as an expression.
 
-Optionally we make a type alias to a variant which can hold an Atom_Node, and a shared pointer to List_Node
+Optionally we make a type alias "AST_Node" to a variant which can hold an Atom_Node, and a shared pointer to List_Node
+As well, we can type alias "Value"  to be a variant that can hold a double, string, or shared_ptr of List_Node's which will represent the value of the atom.
 
 For the Atom_Node class/struct, we declare a type enumerator which is used to distinguish whether the atom is a literal or identifier. We also have the atom store a variant for a string or double.
 We also have an optional string to represent an identifier.
@@ -76,3 +77,22 @@ Below are the methods defined in the Parser class:
 |             |                    |                       |                                                                                                                                                                                                                                                                                                                                                                     |
 
 #+TODO: Start on working on evaluator and write notes for evaluator
+
+* Evaluating
+
+An "Environment represents a scope for which symbols and expressions are stored in. We can represent a scope/environment with a class. It'll have a (hash map) member for storing the variables, a hash map for storing the string name of a function, as welll as the actual (std::function) function, and a shared_ptr that represents the parent scope.
+We can define 5 methods for an environment: the constructor, a "get" method which looks for the name in the hash table, a "define" which inserts a given variable with a value into the hash table, the "define_builtin" method for inserting (through std::move) a function into the builtins, and the "get_builtin" function, which will return an std::function which takes an argument "Value" and has an argument of a vector of Value's It will check if the argued string name matches with the builtins hash map,
+otherwise if it can't, it will check if the parent member is a valid pointer, and if it is, recursively call its "get_builtin" function with the argued name, otherwise the builtin is undefined and we should throw a runtime error.
+
+For evaluating, we define 3 functions:
+| Function name | Parameters                   | Return value                                              | Purpose                                                                                                                                                                                                                                                                                                                                                       |
+|---------------+------------------------------+-----------------------------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| eval_atom     | const atom node, environment | Value (variant: double, string, List_Node shared pointer) | Checks if argued atom is a literal, if it is, return the atom value which is a variant. Otherwise if atom is a identifier, return the value from the "get" method inside the Environment class which will find the identifier name in the hash map and return its variant value, otherwise throw a runtime error.                                             |
+| eval_list     | const list node, environment | Value                                                     | Checks if list is empty, otherwise make a reference to the first (list.elements[0]) object, we also create a function object which takes a "Value" as an argument, and a vector of Value's as an argument, as well as a "Value" object representing the function                                                                                               |
+| evaluate      | const AST node, environment  | Value                                                     | Returns the return value of eval_atom using std::get<Atom_Node> on the node argument and call it with the env argument, otherwise if the node is a List_Node, return eval_list with the dereferenced value using std::get<std::shared_ptr<List_Node>> on the argument, and environment argument, otherwise throw a runtime error for an unknown AST node type |
+
+Also, we will have various "builtin" functions like operators and "print"
+We define a void "initialize_builtins" which takes in an environment. The argued environment object will call the "define_builtin" function, and pass in a lambda which will take in a vector of "Value" arguments, and return a "Value".
+The lambda will go through the arguments in the args vector, and will add to a "result" variable by std::get'ing the double variable and return the double. For negation, return the negative non-commutative vaalue of agrs[0]
+Otherwise declare a variable to hold the resultt, and go through the arguments starting at index 1 and subtract the result from the given arguments values.
+
