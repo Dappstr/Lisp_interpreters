@@ -12,6 +12,8 @@ struct List_Node;
 
 using AST_Node = std::variant<Atom_Node, std::shared_ptr<List_Node>>; // A node in an AST can be either a n atom or a list (like an expression)
 
+using Value = std::variant<double, std::string, std::shared_ptr<List_Node>>;
+
 // Define the atom which will either represent a literal or an identtifier which will combine an identifier/symbol to a value
 struct Atom_Node {
     enum class Type {
@@ -20,7 +22,9 @@ struct Atom_Node {
     };
 
     Type type;
-    std::variant<std::string, double> value; // The actual value of the atom
+    //std::variant<std::string, double> value; // The actual value of the atom
+    Value value;
+    
     std::optional<std::string> identifier; // An optional member for the cases when we declare/define a variable
     
     Atom_Node(const double d) : type(Type::Literal), value(d) {} // Constructing a basic number literal

@@ -17,6 +17,9 @@ add_executable(mal
     	src/scanner.cpp
 	src/parser.cpp
 	src/ast.cpp
+	src/evaluator.cpp
+	src/environment.cpp
+	src/builtins.cpp
 )
 
 # Add the include directory for the 'mal' target
