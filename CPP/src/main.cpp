@@ -38,7 +38,8 @@ int main() {
                 /*
                 for (const auto &t : tokens) {
                     std::cout << t;
-                    }*/
+                }
+                */
                 
                 Parser parser = Parser(std::move(tokens));
                 std::vector<AST_Node> ast = parser.parse();
@@ -52,6 +53,12 @@ int main() {
 
                 for (const auto &node : ast) {
                     Value result = evaluate(node, *global_scope);
+
+                    if (std::holds_alternative<std::string>(result) &&
+                        std::get<std::string>(result) == "nil") {
+                        continue;
+                    }
+                    
                     if (std::holds_alternative<double>(result)) {
                         std::cout << "Result: " << std::get<double>(result) << '\n';
                     } else if (std::holds_alternative<std::string>(result)) {
