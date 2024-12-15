@@ -5,7 +5,8 @@
 #include <vector>
 
 Scanner::Scanner(const std::string &src) : m_src(src) {}
-std::vector<Token> Scanner::scan_tokens() {
+
+std::vector<Token> Scanner::scan_tokens() & {
     while (!is_at_end()) {
         m_start = m_current;
         scan_token();
@@ -14,7 +15,7 @@ std::vector<Token> Scanner::scan_tokens() {
     return m_tokens;
 }
 
-void Scanner::scan_token() {
+void Scanner::scan_token() & {
     char c = advance();
     switch (c) {
     case '(':
@@ -76,19 +77,19 @@ void Scanner::scan_token() {
     }
 }
 
-inline bool Scanner::is_at_end() { return m_current >= m_src.size(); }
-inline char Scanner::advance() { return m_src.at(m_current++); }
+inline bool Scanner::is_at_end() const& noexcept { return m_current >= m_src.size(); }
+inline char Scanner::advance() & { return m_src.at(m_current++); }
 
-void Scanner::add_null_token(const Token_Type type) {
+void Scanner::add_null_token(const Token_Type type) & noexcept {
     add_token(type, std::nullopt);
 }
 
-void Scanner::add_token(const Token_Type type, const lit &literal) {
+void Scanner::add_token(const Token_Type type, const lit &literal) & {
     const std::string str = m_src.substr(m_start, m_current - m_start);
     m_tokens.push_back({type, literal, str});
 }
 
-bool Scanner::match(const char expected) {
+bool Scanner::match(const char expected) & {
     if (is_at_end()) {
         return false;
     } else if (m_src.at(m_current) != expected) {
@@ -99,7 +100,7 @@ bool Scanner::match(const char expected) {
     }
 }
 
-char Scanner::peek() {
+char Scanner::peek() const& {
     if (is_at_end()) {
         return '\0';
     } else {
@@ -107,7 +108,7 @@ char Scanner::peek() {
     }
 }
 
-char Scanner::peek_next() {
+char Scanner::peek_next() const& {
     if (m_current + 1 >= m_src.size()) {
         return '\0';
     } else {
@@ -115,7 +116,7 @@ char Scanner::peek_next() {
     }
 }
 
-void Scanner::str() {
+void Scanner::str() & {
     while (peek() != '\"' && !is_at_end()) {
         advance();
     }
@@ -129,7 +130,7 @@ void Scanner::str() {
     }
 }
 
-void Scanner::number() {
+void Scanner::number() & {
     while (isdigit(peek())) {
         advance();
     }
@@ -144,7 +145,7 @@ void Scanner::number() {
     add_token(NUMBER, number);
 }
 
-void Scanner::identifier() {
+void Scanner::identifier() & {
     while (isalnum(peek())) {
         advance();
     }

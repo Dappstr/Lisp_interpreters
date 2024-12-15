@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include "token.hpp"
 
-class Scanner {
+class Scanner final {
 private:
     size_t m_start = 0;
     size_t m_current = 0;
@@ -33,16 +33,16 @@ private:
 
 public:
     Scanner(const std::string &src);
-    std::vector<Token> scan_tokens();
-    void scan_token();
-    inline bool is_at_end();
-    inline char advance();
-    void add_null_token(const Token_Type type);
-    void add_token(const Token_Type type, const lit &literal);
-    bool match(const char expected);
-    char peek();
-    char peek_next();
-    void str();
-    void number();
-    void identifier();
+    [[nodiscard]] std::vector<Token> scan_tokens() &;
+    void scan_token() &;
+    [[nodiscard]] inline bool is_at_end() const& noexcept;
+    inline char advance() &;
+    void add_null_token(const Token_Type type) & noexcept;
+    void add_token(const Token_Type type, const lit &literal) &;
+    bool match(const char expected) &;
+    char peek() const&;
+    [[nodiscard]] char peek_next() const&;
+    void str() &;
+    void number() &;
+    void identifier()&;
 };

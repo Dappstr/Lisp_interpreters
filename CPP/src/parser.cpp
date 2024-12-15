@@ -6,7 +6,7 @@
 #include "../include/token.hpp"
 #include "../include/ast.hpp"
 
-std::vector<AST_Node> Parser::parse() {
+std::vector<AST_Node> Parser::parse() & {
     std::vector<AST_Node> nodes;
     while (!is_at_end()) {
         nodes.emplace_back(expression());
@@ -14,7 +14,7 @@ std::vector<AST_Node> Parser::parse() {
     return nodes; // Return all the nodes we've collected
 }
 
-AST_Node Parser::expression() {
+AST_Node Parser::expression() & {
     if (match(LEFT_PAREN)) {
         return list();
     } else {
@@ -22,7 +22,7 @@ AST_Node Parser::expression() {
     }
 }
 
-AST_Node Parser::atom() {
+AST_Node Parser::atom() & {
     if (match(NUMBER)) {
         const auto &literal = previous().literal();
         if (literal.has_value()) {
@@ -44,7 +44,7 @@ AST_Node Parser::atom() {
     }
 }
 
-std::shared_ptr<List_Node> Parser::list() {
+std::shared_ptr<List_Node> Parser::list() & {
     std::vector<AST_Node> elements; // Create a vector of possible expressions
     while (!is_at_end() && peek().type() != RIGHT_PAREN) {
         elements.emplace_back(expression());
@@ -55,22 +55,22 @@ std::shared_ptr<List_Node> Parser::list() {
     return std::make_shared<List_Node>(std::move(elements));
 }
 
-const Token &Parser::advance() {
+const Token &Parser::advance() & {
     if (!is_at_end()) {
         m_current++;
     }
     return previous();
 }
 
-const Token &Parser::peek() const {
+const Token &Parser::peek() const& {
     return m_tokens.at(m_current);
 }
 
-const Token &Parser::previous() const {
+const Token &Parser::previous() const& {
     return m_tokens.at(m_current - 1);
 }
 
-bool Parser::match(const Token_Type type) {
+bool Parser::match(const Token_Type type) & {
     if (!is_at_end() && peek().type() == type) {
         advance();
         return true;
@@ -78,11 +78,11 @@ bool Parser::match(const Token_Type type) {
     return false;
 }
 
-bool Parser::is_at_end() const {
+bool Parser::is_at_end() const& {
     return peek().type() == EndOfFile;
 }
 
-const Token &Parser::consume(const Token_Type type, const std::string &error_message) { // Will be used later for verifying token validation and advancing
+const Token &Parser::consume(const Token_Type type, const std::string &error_message) &{ // Will be used later for verifying token validation and advancing
     if (match(type)) {
         return previous();
     }

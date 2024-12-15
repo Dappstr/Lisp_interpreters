@@ -12,7 +12,7 @@
 #include "../include/environment.hpp"
 #include "../include/builtins.hpp"
 
-std::string get_user_input(const char *prompt) noexcept {
+[[nodiscard]] std::string get_user_input(const char *prompt) noexcept {
     std::string input{};
     std::cout << prompt;
     std::getline(std::cin, input);

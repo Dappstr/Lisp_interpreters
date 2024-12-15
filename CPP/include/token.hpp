@@ -7,58 +7,58 @@
 #include <iostream>
 
 enum Token_Type {
-  // Single-character tokens
-  LEFT_PAREN,      // (
-  RIGHT_PAREN,     // )
-  LEFT_BRACE,      // {
-  RIGHT_BRACE,     // }
-  COMMA,           // ,
-  DOT,             // .
-  MINUS,           // -
-  PLUS,            // +
-  SEMICOLON,       // ;
-  SLASH,           // /
-  STAR,            // *
+    // Single-character tokens
+    LEFT_PAREN,      // (
+    RIGHT_PAREN,     // )
+    LEFT_BRACE,      // {
+    RIGHT_BRACE,     // }
+    COMMA,           // ,
+    DOT,             // .
+    MINUS,           // -
+    PLUS,            // +
+    SEMICOLON,       // ;
+    SLASH,           // /
+    STAR,            // *
 
-  // One or two character tokens
-  BANG,            // !
-  BANG_EQUAL,      // !=
-  EQUAL,           // =
-  EQUAL_EQUAL,     // ==
-  GREATER,         // >
-  GREATER_EQUAL,   // >=
-  LESS,            // <
-  LESS_EQUAL,      // <=
+    // One or two character tokens
+    BANG,            // !
+    BANG_EQUAL,      // !=
+    EQUAL,           // =
+    EQUAL_EQUAL,     // ==
+    GREATER,         // >
+    GREATER_EQUAL,   // >=
+    LESS,            // <
+    LESS_EQUAL,      // <=
 
-  // Literals
-  IDENTIFIER,      // Variable names, symbols
-  STRING,          // "hello world"
-  NUMBER,          // 42, 3.14
+    // Literals
+    IDENTIFIER,      // Variable names, symbols
+    STRING,          // "hello world"
+    NUMBER,          // 42, 3.14
 
-  // Keywords
-  IF,              // if
-  DEF,             // def!
-  LET,             // let*
-  FN,              // fn*
-  TRUE,            // true
-  FALSE,           // false
-  NIL,             // nil
-  DO,              // do
-  QUOTE,           // quote
-  EVAL,            // eval
-  CONS,            // cons
-  FIRST,           // first
-  REST,            // rest
-  LIST,            // list
-  PRINTLN,         // println
-  NOT,             // not
+    // Keywords
+    IF,              // if
+    DEF,             // def!
+    LET,             // let*
+    FN,              // fn*
+    TRUE,            // true
+    FALSE,           // false
+    NIL,             // nil
+    DO,              // do
+    QUOTE,           // quote
+    EVAL,            // eval
+    CONS,            // cons
+    FIRST,           // first
+    REST,            // rest
+    LIST,            // list
+    PRINTLN,         // println
+    NOT,             // not
 
-  EndOfFile        // End of input
+    EndOfFile        // End of input
 };
 
 using lit = std::optional<std::variant<std::string, double>>;
 
-class Token {
+class Token final {
 private:
     Token_Type m_type {};
     lit m_literal {};
@@ -69,9 +69,9 @@ public:
       : m_type(type), m_literal(literal), m_lexeme(lexeme) {}
 
     
-    Token_Type type() const { return m_type; }
-    const lit &literal() const { return m_literal; }
-    const std::string& lexeme() const { return m_lexeme; }
+    [[nodiscard]] Token_Type type() const& noexcept { return m_type; }
+    [[nodiscard]] const lit &literal() const& noexcept { return m_literal; }
+    [[nodiscard]] const std::string& lexeme() const& noexcept { return m_lexeme; }
     
     friend std::ostream &operator<<(std::ostream &out, const Token &t) {
         out << "Token { type: " << t.m_type << ", lexeme: " << t.m_lexeme
