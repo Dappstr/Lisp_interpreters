@@ -9,8 +9,7 @@ Environment::Environment(std::shared_ptr<Environment> parent)
     : m_parent(std::move(parent)) {}
 
 Value Environment::get(const std::string &name) const {
-    auto it = m_variables.find(name);
-    if (it != m_variables.end()) {
+    if (auto it = m_variables.find(name); it != m_variables.end()) {
         return it->second;
     } else if (m_parent) {
         return m_parent->get(name);
@@ -31,8 +30,7 @@ void Environment::define_builtin(
 
 Callable Environment::get_callable(const std::string &name) const {
     // Check for a built-in function
-    auto builtin_it = m_builtins.find(name);
-    if (builtin_it != m_builtins.end()) {
+    if (auto builtin_it = m_builtins.find(name); builtin_it != m_builtins.end()) {
         return builtin_it->second;
     }
 

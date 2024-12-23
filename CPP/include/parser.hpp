@@ -12,7 +12,7 @@ private:
     size_t m_current = 0;
 
 public:
-    explicit Parser(const std::vector<Token> &tokens) : m_tokens(tokens) {}
+    explicit Parser(std::vector<Token> &&tokens) : m_tokens(tokens) {}
     [[nodiscard]] std::vector<AST_Node> parse() &;
 
 private:
@@ -22,9 +22,9 @@ private:
     const Token &advance() &;
     [[nodiscard]] const Token &peek() const&;
     [[nodiscard]] const Token &previous() const&;
-    [[nodiscard]] bool match(const Token_Type type) &;
+    [[nodiscard]] bool match(Token_Type type) &;
     [[nodiscard]] bool is_at_end() const&;
-    [[nodiscard]] const Token &consume(const Token_Type type,
+    [[nodiscard]] const Token &consume(Token_Type type,
                                        const std::string &error_message) &;
     
 };

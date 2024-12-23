@@ -2,4 +2,4 @@
 
 #include "environment.hpp"
 
-void initialize_builtins(std::shared_ptr<Environment> env);
+void initialize_builtins(const std::shared_ptr<Environment> &env);

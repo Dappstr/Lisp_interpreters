@@ -24,7 +24,7 @@ public:
     Value get(const std::string &name) const;
     void define(const std::string& name, const Value &val);
 
-    // For defining built in functions like "+" or "-"
+    // For defining built-in functions like "+" or "-"
     void define_builtin(const std::string &name,
                         std::function<Value(const std::vector<Value> &)> func);
 

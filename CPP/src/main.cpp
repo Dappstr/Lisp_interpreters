@@ -16,23 +16,21 @@
     std::string input{};
     std::cout << prompt;
     std::getline(std::cin, input);
-    return input;   
+    return input;
 }
 
 int main() {
 
     auto global_scope = std::make_shared<Environment>();
-    initialize_builtins(global_scope);
-    
+    initialize_builtins(global_scope);   
     
     while (true) {
-        std::string input = get_user_input("user> ");
-        if (input == "quit") {
+        if (std::string input = get_user_input("user> "); input == "quit") {
             std::cout << "Exiting.\n";
             break;
         } else {
             try {
-                Scanner scanner = Scanner(input);
+                auto scanner = Scanner(std::move(input));
                 std::vector<Token> tokens = scanner.scan_tokens();
 
                 /*
@@ -40,8 +38,8 @@ int main() {
                     std::cout << t;
                 }
                 */
-                
-                Parser parser = Parser(std::move(tokens));
+
+                auto parser = Parser(std::move(tokens));
                 std::vector<AST_Node> ast = parser.parse();
 
                 /*

@@ -32,14 +32,16 @@ private:
     };
 
 public:
-    Scanner(const std::string &src);
+    explicit Scanner(const std::string &src);
+    explicit Scanner(std::string &&src);
+
     [[nodiscard]] std::vector<Token> scan_tokens() &;
     void scan_token() &;
     [[nodiscard]] inline bool is_at_end() const& noexcept;
     inline char advance() &;
-    void add_null_token(const Token_Type type) & noexcept;
-    void add_token(const Token_Type type, const lit &literal) &;
-    bool match(const char expected) &;
+    void add_null_token(Token_Type type) & noexcept;
+    void add_token(Token_Type type, const lit &literal) &;
+    bool match(char expected) &;
     char peek() const&;
     [[nodiscard]] char peek_next() const&;
     void str() &;

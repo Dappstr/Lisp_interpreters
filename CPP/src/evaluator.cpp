@@ -7,7 +7,7 @@
 #include <variant>
 #include <vector>
 
-Value eval_atom(const Atom_Node &atom, Environment &env) {
+Value eval_atom(const Atom_Node &atom, const Environment &env) {
     if (atom.is_literal()) {
         return atom.value;
     } else if (atom.is_identifier()) {
@@ -27,9 +27,7 @@ Value eval_list(const List_Node &list, Environment &env) {
     Callable callable_func;
 
     if (std::holds_alternative<Atom_Node>(head)) {
-        const Atom_Node &atom = std::get<Atom_Node>(head);
-
-        if (atom.is_identifier()) {
+        if (const auto &atom = std::get<Atom_Node>(head); atom.is_identifier()) {
             const std::string &func_name = atom.as_identifier();
             callable_func = env.get_callable(func_name);
         } else {

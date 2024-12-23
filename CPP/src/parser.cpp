@@ -24,8 +24,7 @@ AST_Node Parser::expression() & {
 
 AST_Node Parser::atom() & {
     if (match(NUMBER)) {
-        const auto &literal = previous().literal();
-        if (literal.has_value()) {
+        if (const auto &literal = previous().literal(); literal.has_value()) {
             return Atom_Node(std::get<double>(literal.value()));
         } else {
             throw std::runtime_error("Expected a numeric literal, but none found.");

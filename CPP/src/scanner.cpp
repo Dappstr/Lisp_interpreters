@@ -2,9 +2,11 @@
 #include <cctype>
 #include <optional>
 #include <string>
+#include <utility>
 #include <vector>
 
 Scanner::Scanner(const std::string &src) : m_src(src) {}
+Scanner::Scanner(std::string&& src) : m_src(std::move(src)) {}
 
 std::vector<Token> Scanner::scan_tokens() & {
     while (!is_at_end()) {
@@ -16,8 +18,7 @@ std::vector<Token> Scanner::scan_tokens() & {
 }
 
 void Scanner::scan_token() & {
-    char c = advance();
-    switch (c) {
+    switch (const char c = advance()) {
     case '(':
       add_null_token(LEFT_PAREN);
       break;
@@ -86,7 +87,7 @@ void Scanner::add_null_token(const Token_Type type) & noexcept {
 
 void Scanner::add_token(const Token_Type type, const lit &literal) & {
     const std::string str = m_src.substr(m_start, m_current - m_start);
-    m_tokens.push_back({type, literal, str});
+    m_tokens.emplace_back(type, literal, str);
 }
 
 bool Scanner::match(const char expected) & {
@@ -140,8 +141,8 @@ void Scanner::number() & {
     while (isdigit(peek())) {
         advance();
     }
-    std::string str_num{m_src.substr(m_start, m_current - m_start)};
-    double number{std::stod(str_num)};
+    const std::string str_num{m_src.substr(m_start, m_current - m_start)};
+    const double number{std::stod(str_num)};
     add_token(NUMBER, number);
 }
 
@@ -149,9 +150,8 @@ void Scanner::identifier() & {
     while (isalnum(peek())) {
         advance();
     }
-    std::string text{m_src.substr(m_start, m_current - m_start)};
-    auto it = m_keywords.find(text);
-    if (it != m_keywords.end()) {
+    const std::string text{m_src.substr(m_start, m_current - m_start)};
+    if (const auto it = m_keywords.find(text); it != m_keywords.end()) {
         add_null_token(it->second);
     } else {
         add_null_token(IDENTIFIER);
