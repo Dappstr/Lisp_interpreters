@@ -11,7 +11,6 @@ struct Atom_Node; // An atom represents the most basic unit in a programming lan
 struct List_Node;
 
 using AST_Node = std::variant<Atom_Node, std::shared_ptr<List_Node>>; // A node in an AST can be either an atom or a list (like an expression)
-
 using Value = std::variant<double, std::string, std::shared_ptr<List_Node>>;
 
 // Define the atom which will either represent a literal or an identifier which will combine an identifier/symbol to a value
