@@ -73,7 +73,6 @@ void Scanner::scan_token() & {
           identifier();
       } else {
           std::cerr << "Unexpected character: " << c << '\n';
-          return;
       }
     }
 }

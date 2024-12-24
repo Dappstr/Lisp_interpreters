@@ -32,4 +32,3 @@ public:
     Callable get_callable(const std::string &name) const;
     
 };
-

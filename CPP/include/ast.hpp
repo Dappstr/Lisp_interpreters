@@ -28,7 +28,7 @@ struct Atom_Node {
     std::optional<std::string> identifier; // An optional member for the cases when we declare/define a variable
 
     explicit Atom_Node(const double d) : type(Type::Literal), value(d) {} // Constructing a basic number literal
-    explicit Atom_Node(const std::string &str, bool is_identifier = false)
+    explicit Atom_Node(const std::string &str, const bool is_identifier = false)
         : type(is_identifier ? Type::Identifier : Type::Literal), value(str) { // Essentially, check if the constructor argument is supplied, if it is then it's an identifier
         if (is_identifier) {
             identifier = str;
@@ -76,4 +76,3 @@ void print_ast(const AST_Node &, int);
 void print_indent(int);
 void print_atom(const Atom_Node &, int indent);
 void print_list(const List_Node&, int indent);
-

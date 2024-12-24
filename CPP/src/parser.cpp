@@ -15,12 +15,28 @@ std::vector<AST_Node> Parser::parse() & {
 }
 
 AST_Node Parser::expression() & {
-    if (match(LEFT_PAREN)) {
+    if (match(DEF)) { // Variable definition
+        auto name = consume(IDENTIFIER, "Expected variable name after \"def\"");
+        auto value = expression();
+
+        // Ensure each element is explicitly constructed
+        AST_Node def_node = Atom_Node("def", true); // Mark "def" as an identifier
+        AST_Node name_node = Atom_Node(name.lexeme(), true); // Variable name as an identifier
+
+        std::vector<AST_Node> elements = {
+            std::move(def_node),
+            std::move(name_node),
+            std::move(value)
+        };
+        return std::make_shared<List_Node>(std::move(elements));
+    }
+    else if (match(LEFT_PAREN)) {
         return list();
     } else {
         return atom();
     }
 }
+
 
 AST_Node Parser::atom() & {
     if (match(NUMBER)) {
@@ -44,12 +60,30 @@ AST_Node Parser::atom() & {
 }
 
 std::shared_ptr<List_Node> Parser::list() & {
-    std::vector<AST_Node> elements; // Create a vector of possible expressions
+    std::vector<AST_Node> elements;
+
+    if (!is_at_end() && peek().type() == DEF) { // Special form: `def`
+        advance(); // Consume `def`
+        const auto name = consume(IDENTIFIER, "Expected variable name after \"def\"");
+        auto value = expression();
+
+        elements = {
+            Atom_Node("def", true), // Special form
+            Atom_Node(name.lexeme(), true), // Variable name
+            value // Value expression
+        };
+        if (!match(RIGHT_PAREN)) {
+            throw std::runtime_error("Expected ')' after def expression.");
+        }
+        return std::make_shared<List_Node>(std::move(elements));
+    }
+
+    // Handle generic lists
     while (!is_at_end() && peek().type() != RIGHT_PAREN) {
         elements.emplace_back(expression());
     }
-    if (!match(RIGHT_PAREN)) { // Once we break out of our initial while loop, we check for a right paren to match with our expression
-        throw std::runtime_error("Unmatched \'(\'");
+    if (!match(RIGHT_PAREN)) {
+        throw std::runtime_error("Unmatched '('");
     }
     return std::make_shared<List_Node>(std::move(elements));
 }
@@ -81,7 +115,7 @@ bool Parser::is_at_end() const& {
     return peek().type() == EndOfFile;
 }
 
-const Token &Parser::consume(const Token_Type type, const std::string &error_message) &{ // Will be used later for verifying token validation and advancing
+const Token &Parser::consume(const Token_Type type, const std::string &error_message) & { // Will be used later for verifying token validation and advancing
     if (match(type)) {
         return previous();
     }
