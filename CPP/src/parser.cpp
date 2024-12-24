@@ -16,14 +16,14 @@ std::vector<AST_Node> Parser::parse() & {
 
 AST_Node Parser::expression() & {
     if (match(DEF)) { // Variable definition
-        auto name = consume(IDENTIFIER, "Expected variable name after \"def\"");
+        const auto name = consume(IDENTIFIER, "Expected variable name after \"def\"");
         auto value = expression();
 
         // Ensure each element is explicitly constructed
         AST_Node def_node = Atom_Node("def", true); // Mark "def" as an identifier
         AST_Node name_node = Atom_Node(name.lexeme(), true); // Variable name as an identifier
 
-        std::vector<AST_Node> elements = {
+        std::vector elements = {
             std::move(def_node),
             std::move(name_node),
             std::move(value)
@@ -46,8 +46,7 @@ AST_Node Parser::atom() & {
             throw std::runtime_error("Expected a numeric literal, but none found.");
         }
     } else if (match(STRING)) {
-        const auto &lit = previous().literal();
-        if (lit.has_value()) {
+        if (const auto &lit = previous().literal(); lit.has_value()) {
             return Atom_Node(std::get<std::string>(lit.value()));
         } else {
             throw std::runtime_error("Expected string literal, but none found.");
@@ -67,11 +66,10 @@ std::shared_ptr<List_Node> Parser::list() & {
         const auto name = consume(IDENTIFIER, "Expected variable name after \"def\"");
         auto value = expression();
 
-        elements = {
-            Atom_Node("def", true), // Special form
-            Atom_Node(name.lexeme(), true), // Variable name
-            value // Value expression
-        };
+        elements.emplace_back(Atom_Node("def", true)); // Special form
+        elements.emplace_back(Atom_Node(name.lexeme(), true)); // Variable name
+        elements.emplace_back(std::move(value)); // Value expression
+
         if (!match(RIGHT_PAREN)) {
             throw std::runtime_error("Expected ')' after def expression.");
         }
