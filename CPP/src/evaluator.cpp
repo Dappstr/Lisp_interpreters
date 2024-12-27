@@ -35,25 +35,54 @@ Value eval_list(const List_Node &list, Environment &env) {
                 if (!std::holds_alternative<Atom_Node>(name_node) ||
                     !std::get<Atom_Node>(name_node).is_identifier()) {
                     throw std::runtime_error("The first argument to 'def' must be an identifier.");
-                }
+                    }
                 const std::string &var_name = std::get<Atom_Node>(name_node).as_identifier();
                 const AST_Node &value_node = list.elements[2];
                 const Value value = evaluate(value_node, env);
                 env.define(var_name, value);
                 return "nil";
-            }
+            } else if (func_name == "fn") {
+                if (list.elements.size() != 4) { // 4 because of "fn"
+                    throw std::runtime_error("'fn' expects exactly 3 arguments: name and value.");
+                }
+                const AST_Node &name_node = list.elements[1];
+                if (!std::holds_alternative<Atom_Node>(list.elements[1]) || !std::get<Atom_Node>(list.elements[1]).is_identifier()) {
+                    throw std::runtime_error("The second element of 'fn' must be an identifier.");
+                }
+                std::string function_name = std::get<Atom_Node>(name_node).as_identifier();
+                const auto &args_node = list.elements[2];
+                if (!std::holds_alternative<std::shared_ptr<List_Node>>(args_node)) {
+                    throw std::runtime_error("The third element of 'fn' must be a list of arguments.");
+                }
+                auto arg_list = std::get<std::shared_ptr<List_Node>>(args_node);
+                std::vector<std::string> args;
+                for (auto &arg_ast : arg_list->elements) {
+                    if (!std::holds_alternative<Atom_Node>(arg_ast)) {
+                        throw std::runtime_error("Function arguments must be identifiers.");
+                    }
+                    const auto &arg_atom = std::get<Atom_Node>(arg_ast);
+                    if (!arg_atom.is_identifier()) {
+                        throw std::runtime_error("Function arguments must be identifiers.");
+                    }
+                    args.push_back(arg_atom.as_identifier());
+                }
+                const auto &body_node = list.elements[3];
 
-            const Callable callable = env.get_callable(func_name);
-            std::vector<Value> args;
-            for (size_t i = 1; i < list.elements.size(); ++i) {
-                args.push_back(evaluate(list.elements[i], env));
+                const User_Function fn {.name = function_name, .args = args, .body = body_node, .closure = std::make_shared<Environment>(env)};
+                env.define_function(function_name, fn);
+                return "nil";
+            } else {
+                const Callable callable = env.get_callable(func_name);
+                std::vector<Value> args;
+                for (size_t i = 1; i < list.elements.size(); ++i) {
+                    args.push_back(evaluate(list.elements[i], env));
+                }
+                return callable(args);
             }
-            return callable(args);
         }
     }
     throw std::runtime_error("The head of the list must be an identifier.");
 }
-
 
 Value evaluate(const AST_Node &node, Environment &env) {
     if (std::holds_alternative<Atom_Node>(node)) {

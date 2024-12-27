@@ -29,14 +29,36 @@ AST_Node Parser::expression() & {
             std::move(value)
         };
         return std::make_shared<List_Node>(std::move(elements));
-    }
-    else if (match(LEFT_PAREN)) {
+    } else if (match(FN)) {
+        const auto fn_name_token = consume(IDENTIFIER, "Expected function name after 'fn'");
+
+        // 2) Parse the parameter list
+        (void) consume(LEFT_PAREN, "Expected '(' before argument list.");
+        std::vector<AST_Node> arg_nodes;
+        while (!is_at_end() && peek().type() != RIGHT_PAREN) {
+            const Token &arg_token = consume(IDENTIFIER, "Expected identifier in function parameter list");
+            arg_nodes.emplace_back(Atom_Node(arg_token.lexeme(), true));
+        }
+        (void)consume(RIGHT_PAREN, "Expected ')' after argument list.");
+
+        // 3) Parse the body
+        AST_Node body_expr = expression(); // single expression as the body
+
+        // 4) Build AST
+        std::vector<AST_Node> elements;
+        elements.emplace_back(Atom_Node("fn", true));
+        elements.emplace_back(Atom_Node(fn_name_token.lexeme(), true));
+        auto arg_list = std::make_shared<List_Node>(std::move(arg_nodes));
+        elements.emplace_back(arg_list);
+        elements.emplace_back(std::move(body_expr));
+
+        return std::make_shared<List_Node>(std::move(elements));
+    } else if (match(LEFT_PAREN)) {
         return list();
     } else {
         return atom();
     }
 }
-
 
 AST_Node Parser::atom() & {
     if (match(NUMBER)) {
@@ -74,8 +96,37 @@ std::shared_ptr<List_Node> Parser::list() & {
             throw std::runtime_error("Expected ')' after def expression.");
         }
         return std::make_shared<List_Node>(std::move(elements));
-    }
+    } else if (!is_at_end() && peek().type() == FN) {
+        advance(); // Consume 'fn'
+        // parse function name
+        const auto fn_name_token = consume(IDENTIFIER, "Expected function name after 'fn'");
 
+        // parse the '(' that starts the argument list
+        (void) consume(LEFT_PAREN, "Expected '(' before argument list.");
+
+        // gather all identifiers up to ')'
+        std::vector<AST_Node> arg_nodes;
+        while (!is_at_end() && peek().type() != RIGHT_PAREN) {
+            const Token &arg_token = consume(IDENTIFIER, "Expected identifier in function parameter list");
+            arg_nodes.emplace_back(Atom_Node(arg_token.lexeme(), true));
+        }
+        (void) consume(RIGHT_PAREN, "Expected ')' after argument list.");
+
+        // parse the body expression
+        AST_Node body_expr = expression();
+
+        // Build up the elements that represent (fn NAME (args...) body)
+        elements.emplace_back(Atom_Node("fn", true));
+        elements.emplace_back(Atom_Node(fn_name_token.lexeme(), true));
+        auto args_list = std::make_shared<List_Node>(std::move(arg_nodes));
+        elements.emplace_back(args_list);
+        elements.emplace_back(std::move(body_expr));
+
+        if (!match(RIGHT_PAREN)) {
+            throw std::runtime_error("Expected ')' after fn expression.");
+        }
+        return std::make_shared<List_Node>(std::move(elements));
+    }
     // Handle generic lists
     while (!is_at_end() && peek().type() != RIGHT_PAREN) {
         elements.emplace_back(expression());

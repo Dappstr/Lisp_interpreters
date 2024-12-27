@@ -1,4 +1,7 @@
 #include "../include/environment.hpp"
+
+#include <evaluator.hpp>
+
 #include "../include/ast.hpp"
 #include <memory>
 #include <stdexcept>
@@ -43,14 +46,30 @@ User_Function Environment::get_function(const std::string &name) const {
 }
 
 Callable Environment::get_callable(const std::string &name) const {
-    // Check for a built-in function
+    // Check for a built-in function in the current environment
     if (const auto builtin_it = m_builtins.find(name); builtin_it != m_builtins.end()) {
         return builtin_it->second;
     }
+    if (const auto uf_it = m_user_functions.find(name); uf_it != m_user_functions.end()) {
+        const User_Function &func = uf_it->second;
+        return [func](const std::vector<Value> &args) -> Value {
+            Environment fn_env(func.closure);
 
-    // Check for a user-defined function or callable in the environment
-    Value value = get(name);
-
-    // If the value isn't callable, throw an error
+            if (args.size() != func.args.size()) {
+                throw std::runtime_error("Arity error: function '" + func.name + "' expects "
+                                         + std::to_string(func.args.size()) + " args, got "
+                                         + std::to_string(args.size()));
+            }
+            for (size_t i = 0; i < args.size(); ++i) {
+                fn_env.define(func.args[i], args[i]);
+            }
+            return evaluate(func.body, fn_env);
+        };
+    }
+    // If not found, try to locate it in the parent function
+    if (m_parent) {
+        return m_parent->get_callable(name);
+    }
     throw std::runtime_error("Symbol '" + name + "' is not callable.");
 }
+
