@@ -1,7 +1,6 @@
 const std = @import("std");
-const Token = @import("token.zig").Token;
-const Token_Type = @import("token.zig").Token_Type;
-const Literal = @import("token.zig").Literal;
+const Token = @import("token.zig");
+const Scanner = @import("scanner.zig");
 
 var gpa = std.heap.GeneralPurposeAllocator(.{}){};
 var allocator = gpa.allocator();
@@ -20,6 +19,14 @@ pub fn main() !void {
             error.EndOfStream => return,
             else => return err,
         };
-        //try stdout.print("{s}\n", .{buff.items});
+
+        var scanner = Scanner.Scanner.init(allocator, buff.items);
+        defer scanner.deinit();
+
+        const tokens = try scanner.scan_tokens();
+        for (tokens) |token| {
+            const token_str = try token.to_string(allocator);
+            std.debug.print("{s}\n", .{token_str});
+        }
     }
 }

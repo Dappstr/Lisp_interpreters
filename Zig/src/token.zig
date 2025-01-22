@@ -3,11 +3,13 @@ const std = @import("std");
 pub const Token_Type = enum {
     LEFT_PAREN,
     RIGHT_PAREN,
+    COMMA,
     DOT,
     MINUS,
     PLUS,
     SLASH,
     STAR,
+
 
     BANG,
     BANG_EQUAL,
@@ -21,9 +23,26 @@ pub const Token_Type = enum {
     TRUE,
     FALSE,
 
+    IF,
+    DEF,
+    LET,
+    FN,
+    NIL,
+    DO,
+    QUOTE,
+    EVAL,
+    CONST,
+    FIRST,
+    REST,
+    LIST,
+    PRINTLN,
+    NOT,
+
     IDENTIFIER,
     STRING,
     NUMBER,
+
+    EOF,
 };
 
 pub const Literal = union(enum) { Float: f64, String: []const u8, Bool: bool, None: void };
