@@ -1,4 +1,8 @@
 const std = @import("std");
+const Token = @import("token.zig").Token;
+const Token_Type = @import("token.zig").Token_Type;
+const Literal = @import("token.zig").Literal;
+
 var gpa = std.heap.GeneralPurposeAllocator(.{}){};
 var allocator = gpa.allocator();
 
@@ -16,6 +20,6 @@ pub fn main() !void {
             error.EndOfStream => return,
             else => return err,
         };
-        try stdout.print("{s}\n", .{buff.items});
+        //try stdout.print("{s}\n", .{buff.items});
     }
 }
